@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"github.com/nbcx/cronjob/ext"
 )
 
 func main() {
@@ -14,7 +15,7 @@ func main() {
 type EJob struct {
 	conf       *Config
 	commandMap map[string]func(string) /*创建指令集合 */
-	server     ServerInterface
+	server     ext.ServerInterface
 }
 
 //获取EJob
@@ -42,5 +43,5 @@ func (ejob *EJob) run() {
 
 	//刷新
 	//-s
-	ejob.server.run()
+	ejob.server.Run()
 }

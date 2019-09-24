@@ -58,6 +58,7 @@ type sqliteQueue struct {
 func (this *sqliteQueue) Push(cmd string, args string) error {
 	//插入数据
 	stmt, err := this.db.Prepare("INSERT INTO command(`key`, `value`, args, ct) values(?,?,?)")
+	defer stmt.Close()
 	this.errlog(err)
 
 	res, err := stmt.Exec(cmd, args, "2012-12-09")
@@ -86,6 +87,7 @@ func (this *sqliteQueue) Pop() *ext.Task {
 	//删除数据
 	stmt, err := this.db.Prepare("delete from command where id=?")
 	this.errlog(err)
+	defer stmt.Close()
 
 	res, err := stmt.Exec(task.Id)
 	this.errlog(err)

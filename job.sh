@@ -5,6 +5,7 @@ MAILTO=root
 
 # For details see man 4 crontabs
 
+[script]
 # Example of job definition:
 # .---------------- id
 # |  .------------- concurrent
@@ -13,5 +14,8 @@ MAILTO=root
 # |  |  |  |  .---- args
 # |  |  |  |  |
 # *  *  *  *  * user-name  command to be executed
-
 0001        0 0 php php.php 1>>out.txt 2>err.txt
+
+
+
+[crontab]

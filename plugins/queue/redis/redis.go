@@ -1,4 +1,4 @@
-package main
+package redis
 
 import (
 	"database/sql"
@@ -24,7 +24,7 @@ func NewQueue(conf ext.ConfigInterface, log ext.LoggerInterface) ext.QueueInterf
 	}
 }
 
-func (this *redisQueue) Push(cmd string, args string) error {
+func (this *redisQueue) Push(key string, value string, args string) error {
 	fmt.Println("Push?")
 	return nil
 }

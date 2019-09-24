@@ -58,11 +58,12 @@ func (this *assignment) run(key string, value string, args string) {
 			logger.Info("no tasks to be performed")
 			break
 		}
+
 		//通过ID执行
 		if data.Key == "id" {
-			cmds, ok := this.conf.jobs[data.Key]
+			cmds, ok := this.conf.jobs[data.Value]
 			if !ok {
-				logger.Info("job ", data.Key, " is not support")
+				logger.Info("job ", data.Value, " is not support")
 				continue
 			}
 			command := strings.Join(cmds[3:], " ") + " " + data.Args
@@ -76,8 +77,8 @@ func (this *assignment) run(key string, value string, args string) {
 			//通过bash调用
 		} else {
 			go this.shell(data.Value + " " + data.Args)
+			break
 		}
-
 	}
 
 	this.count++

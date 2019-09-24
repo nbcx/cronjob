@@ -55,13 +55,13 @@ type sqliteQueue struct {
 	lock sync.Mutex
 }
 
-func (this *sqliteQueue) Push(cmd string, args string) error {
+func (this *sqliteQueue) Push(key string, value string, args string) error {
 	//插入数据
 	stmt, err := this.db.Prepare("INSERT INTO command(`key`, `value`, args, ct) values(?,?,?)")
 	defer stmt.Close()
 	this.errlog(err)
 
-	res, err := stmt.Exec(cmd, args, "2012-12-09")
+	res, err := stmt.Exec(key, value, args, "2012-12-09")
 	this.errlog(err)
 
 	_, err = res.LastInsertId()
@@ -75,21 +75,21 @@ func (this *sqliteQueue) Pop() *ext.Task {
 
 	task := &ext.Task{}
 	//查询数据
-	rows, err := this.db.Query("SELECT * FROM command limit 1")
+	rows, err := this.db.Query("SELECT * FROM cronjob limit 1")
 
 	if !rows.Next() {
 		return nil
 	}
-
-	rows.Scan(&task.Id, &task.Cmd, &task.Args, &task.Ct)
+	var id int64
+	rows.Scan(&id, &task.Key, &task.Value, &task.Args)
 	rows.Close()
 
 	//删除数据
-	stmt, err := this.db.Prepare("delete from command where id=?")
+	stmt, err := this.db.Prepare("delete from cronjob where id=?")
 	this.errlog(err)
 	defer stmt.Close()
 
-	res, err := stmt.Exec(task.Id)
+	res, err := stmt.Exec(id)
 	this.errlog(err)
 
 	_, err = res.RowsAffected()

@@ -1,13 +1,12 @@
 package ext
 
 type Task struct {
-	Id   string
-	Cmd  string
-	Args string
-	Ct   string
+	Key   string
+	Value string
+	Args  string
 }
 
 type QueueInterface interface {
-	Push(cmd string, args string) error
+	Push(key string, value string, args string) error
 	Pop() *Task
 }

@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/nbcx/cronjob/ext"
 	"log"
 	"net/http"
 	"strings"
-	"github.com/nbcx/cronjob/ext"
 )
 
 var assign *assignment
@@ -36,18 +36,19 @@ func (this *Server) Run() {
 	}
 }
 
-func script(w http.ResponseWriter, r *http.Request)  {
+func script(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() //解析参数，默认是不会解析的
 
 	args := strings.Join(r.PostForm["args"], " ")
 
 	fmt.Fprintf(w, "+ %t", assign.flag)
-	cmd := r.PostFormValue("cmd")
-	if cmd != "" {
-		go assign.run(cmd, args)
+	key := r.PostFormValue("key")
+	value := r.PostFormValue("value")
+	if key != "" {
+		go assign.run(key, value, args)
 	}
 }
 
-func crontab(w http.ResponseWriter, r *http.Request)  {
+func crontab(w http.ResponseWriter, r *http.Request) {
 
 }

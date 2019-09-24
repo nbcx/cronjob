@@ -36,8 +36,8 @@ func (this *assignment) script(key string, value string, args string) {
 
 }
 
-func (this *assignment) run(cmd string, args string) {
-	err := this.queue.Push(cmd, args)
+func (this *assignment) run(key string, value string, args string) {
+	err := this.queue.Push(key, value, args)
 
 	if err != nil {
 		logger.Error("this.queue.push error: ", err)
@@ -58,15 +58,26 @@ func (this *assignment) run(cmd string, args string) {
 			logger.Info("no tasks to be performed")
 			break
 		}
+		//通过ID执行
+		if data.Key == "id" {
+			cmds, ok := this.conf.jobs[data.Key]
+			if !ok {
+				logger.Info("job ", data.Key, " is not support")
+				continue
+			}
+			command := strings.Join(cmds[3:], " ") + " " + data.Args
 
-		cmds, ok := this.conf.jobs[data.Cmd]
-		if !ok {
-			logger.Info("job ", data.Cmd, " is not support")
-			continue
+			go this.shell(command)
+
+			//原生调用
+		} else if data.Key == "pro" {
+			go this.command(data.Value + " " + data.Args)
+
+			//通过bash调用
+		} else {
+			go this.shell(data.Value + " " + data.Args)
 		}
-		command := strings.Join(cmds[3:], " ") + " " + data.Args
 
-		go this.shell(command)
 	}
 
 	this.count++

@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/nbcx/cronjob/ext"
 	"gox/plugin/log/logger"
 	"sync"
@@ -13,21 +14,20 @@ func init() {
 }
 
 type sqlite struct {
-	db   sql.DB
+	db   *sql.DB
 	lock sync.Mutex
 	log  ext.LoggerInterface
 }
 
-func NewQueue(conf ext.ConfigInterface, log ext.LoggerInterface) (ext.QueueInterface, error) {
-	log.Error(conf.GetSectionString("save", "paths", "没有值啊"))
+func New(conf ext.ConfigInterface, log ext.LoggerInterface) (ext.QueueInterface, error) {
 
-	dbPath := "./db"
+	dbPath := conf.GetSectionString("sqlite", "db", "./db")
 
 	exists, _ := ext.FileExists(dbPath)
 	db, err := sql.Open("sqlite3", dbPath)
 
 	sqlite := &sqlite{
-		db:  *db,
+		db:  db,
 		log: log,
 	}
 
@@ -40,11 +40,11 @@ func NewQueue(conf ext.ConfigInterface, log ext.LoggerInterface) (ext.QueueInter
 
 func (this *sqlite) Push(key string, value string, args string) error {
 	//插入数据
-	stmt, err := this.db.Prepare("INSERT INTO cronjob(key, value, args, ct) values(?,?,?,?)")
+	stmt, err := this.db.Prepare("INSERT INTO cronjob(key, value, args) values(?,?,?)")
 	defer stmt.Close()
 	this.errlog(err)
 
-	res, err := stmt.Exec(key, value, args, "2012-12-09")
+	res, err := stmt.Exec(key, value, args)
 	this.errlog(err)
 
 	_, err = res.LastInsertId()
@@ -64,8 +64,7 @@ func (this *sqlite) Pop() *ext.Task {
 		return nil
 	}
 	var id string
-	var ct string
-	rows.Scan(&id, &task.Key, &task.Value, &task.Args, &ct)
+	rows.Scan(&id, &task.Key, &task.Value, &task.Args)
 	rows.Close()
 
 	//删除数据
@@ -89,8 +88,7 @@ func (this *sqlite) init() {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         key text NULL,
         value text NULL,
-        args text NULL,
-        ct DATE NULL
+        args text NULL
     );
     `
 	this.db.Exec(sql_table)

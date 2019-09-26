@@ -8,14 +8,6 @@ import (
 	"os"
 )
 
-/*
-type LoggerInterface interface {
-	write(debug string, args ...interface{})
-	info(args ...interface{})
-	warning(args ...interface{})
-	error(args ...interface{})
-}
-*/
 type loger struct {
 	hander *log.Logger
 }
@@ -55,9 +47,9 @@ func (log *loger) Error(args ...interface{}) {
 }
 
 func (log *loger) Debug(args ...interface{}) {
-	log.Write("ERROR ", args...)
+	log.Write("DEBUG ", args...)
 }
 
 func (log *loger) Fatal(args ...interface{}) {
-	log.Write("ERROR ", args...)
+	log.Write("FATAL ", args...)
 }

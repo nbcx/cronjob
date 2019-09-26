@@ -8,9 +8,6 @@ import (
 )
 
 //https://blog.csdn.net/dodod2012/article/details/82774257
-type AssignmentInterface interface {
-	run(cmd string, args string)
-}
 
 type assignment struct {
 	queue  ext.QueueInterface
@@ -21,7 +18,12 @@ type assignment struct {
 }
 
 func NewAssignment(conf *Config) *assignment {
-	queue, _ := NewQueue(conf)
+	queue, err := NewQueue(conf)
+
+	if err != nil {
+		logger.Error(err)
+		os.Exit(0)
+	}
 
 	assignment := &assignment{
 		queue: queue,
@@ -32,11 +34,33 @@ func NewAssignment(conf *Config) *assignment {
 	return assignment
 }
 
-func (this *assignment) script(key string, value string, args string) {
+func (this *assignment) Script(key string, value string, args string) {
+	//通过ID执行
+	if key == "id" {
+		cmds, ok := this.conf.jobs[value]
+		if !ok {
+			logger.Info("job ", value, " is not support")
+			return
+		}
+		command := strings.Join(cmds[3:], " ") + " " + args
+
+		this.bash(command)
+
+		//原生调用
+	} else if key == "pro" {
+		this.command(value + " " + args)
+
+		//通过bash调用
+	} else {
+		this.bash(value + " " + args)
+	}
+}
+
+func (this *assignment) Crontab(key string, value string, args string, time string) {
 
 }
 
-func (this *assignment) run(key string, value string, args string) {
+func (this *assignment) Queue(key string, value string, args string) {
 	err := this.queue.Push(key, value, args)
 
 	if err != nil {
@@ -59,26 +83,7 @@ func (this *assignment) run(key string, value string, args string) {
 			break
 		}
 
-		//通过ID执行
-		if data.Key == "id" {
-			cmds, ok := this.conf.jobs[data.Value]
-			if !ok {
-				logger.Info("job ", data.Value, " is not support")
-				continue
-			}
-			command := strings.Join(cmds[3:], " ") + " " + data.Args
-
-			go this.shell(command)
-
-			//原生调用
-		} else if data.Key == "pro" {
-			go this.command(data.Value + " " + data.Args)
-
-			//通过bash调用
-		} else {
-			go this.shell(data.Value + " " + data.Args)
-			break
-		}
+		this.Script(data.Key, data.Value, data.Args)
 	}
 
 	this.count++
@@ -87,7 +92,7 @@ func (this *assignment) run(key string, value string, args string) {
 }
 
 //以shell运行指令
-func (this *assignment) shell(command string) {
+func (this *assignment) bash(command string) {
 
 	logger.Info("shell: ", command)
 

@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/nbcx/cronjob/ext"
-	"log"
 	"net/http"
 	"strings"
 )
@@ -30,9 +29,11 @@ func (this *Server) Run() {
 	http.HandleFunc("/script", script)
 	http.HandleFunc("/crontab", crontab)
 
-	err := http.ListenAndServe(addr, nil) //设置监听的端口
+	//设置监听的端口
+	err := http.ListenAndServe(addr, nil)
+
 	if err != nil {
-		log.Fatal("ListenAndServer: ", err)
+		logger.Error("ListenAndServer: ", err)
 	}
 }
 
@@ -45,7 +46,7 @@ func script(w http.ResponseWriter, r *http.Request) {
 	key := r.PostFormValue("key")
 	value := r.PostFormValue("value")
 	if key != "" {
-		go assign.run(key, value, args)
+		go assign.Queue(key, value, args)
 	}
 }
 

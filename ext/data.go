@@ -6,7 +6,9 @@ type Task struct {
 	Args  string
 }
 
-type QueueInterface interface {
-	Push(key string, value string, args string) error
-	Pop() *Task
+type Config struct {
+	Id   string
+	Cmd  string
+	Args string
+	Ct   string
 }

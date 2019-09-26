@@ -1,6 +1,8 @@
 package ext
 
-import "os"
+import (
+	"os"
+)
 
 //判断文件是否存在
 func FileExists(path string) (bool, error) {

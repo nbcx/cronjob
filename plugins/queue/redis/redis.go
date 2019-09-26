@@ -17,7 +17,7 @@ type redisQueue struct {
 	log  ext.LoggerInterface
 }
 
-func NewQueue(conf ext.ConfigInterface, log ext.LoggerInterface) ext.QueueInterface {
+func New(conf ext.ConfigInterface, log ext.LoggerInterface) ext.QueueInterface {
 	log.Error(conf.GetSectionString("save", "paths", "没有值啊"))
 	return &redisQueue{
 		log: log,

@@ -14,7 +14,7 @@ MAILTO=root
 # |  |  |  |  .---- args
 # |  |  |  |  |
 # *  *  *  *  * user-name  command to be executed
-0001        0 0 php php.php 1>>out.txt 2>err.txt
+0001        0 0 php php.php 1>>out.txt 2>&1
 
 
 
